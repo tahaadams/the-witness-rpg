@@ -1,101 +1,103 @@
-The Witness Puzzle Solver (SPOILERS!)
-=====================================
+# The Witness Random Puzzle Generator (RPG)
 
-This is a tool for solving all of the non-environment puzzles in the video game
+This is a tool for generating puzzles given a series of elements applied to the game enviornment
 [The Witness](http://store.steampowered.com/app/210970/). It provides an
-interface for inputting puzzles similar to the panels in the game. It finds the
-simplest solution and displays it in the grid. You can also configure the solver
-to only show part of the solution if you just need a hint.
+interface for inputting puzzles similar to the panels in the game. It generates a random permutation
+provided the puzzle elements and finds the simplest solution to display on the grid.
 
-You can try out the solver here:
-
-https://overv.github.io/TheWitnessSolver/
-
-# Algorithm
+## Algorithm
 
 Currently a very simple branch-and-bound algorithm is used that walks through
 all possible paths from each starting node and evaluates if the current path
 forms a correct solution when it hits an exit node.
 
-Even just verifying a solution for the puzzles with tetris blocks appears to be
-an [NP-complete problem](https://en.wikipedia.org/wiki/Tetris#Computational_complexity)
-so the algorithm is unlikely to become more efficient. Most of the effort should
-probably be dedicated to finding heuristics for the bound conditions to reduce
-the depth of the search tree.
+Apart from the brute forst BFS search, the algorithm that is the focus here is
+the random puzzle generator, which utilizes principles of DFS  tree problems,
+applying all the puzzle elements before determining whether or not it is solvable,
+only that it immediately restarts at the initial node if the terminal branch fails
+to meet the criteria of the goal state, effectively acting a constraint satisfaction problem.
 
-This solver does not attempt to find the "simplest" solution, because that would
-require an exhaustive search that eliminates many optimisation opportunities to
-keep the performance reasonable.
+## Formulation
 
-The areas split up by the solution path are found incrementally, which means
-that for every step in the path only the last area has to be reexamined. This
-is much faster than running flood fill from scratch for every proposed solution
-and allows for early termination decisions, because other areas are known to
-longer change with future steps.
+The game environment is a WxH Grid consisting of four distinct 2D arrays.
 
-Similar to the first-fit decreasing bin packing algorithm, tetris puzzle
-solutions are verified by trying to fit the largest tetris blocks within an area
-first, which allows for detecting nonsensical solutions earlier. Note that
-unlike the bin packing algorithm, all possible combinations will be attempted if
-necessary.
+### Horizontal Edges and Vertical Edges
 
-### Prefer required neighbour nodes
+-Connects nodes and form cells.
+-Can contain Breaks and Hexes.
+-Array of W*(H+1) and (W+1)*H sizes respectively.
 
-If multiple unvisited neighbour nodes are available, try visiting the required
-nodes first. This can avoid a lot of dead end solutions early on.
+### Nodes
 
-### Segregation optimization through auxilary required nodes
+-Vertices adjoined by Edges.
+-Can contain Hexes. Array of (W+1)*(H+1) size.
 
-If differently colored squares are direct neighbours, then the edge between them
-**must** be part of the correct solution path. That means that the endpoints of
-that edge are required nodes in the path. By checking for these (extra) required
-nodes in the solution check, the full segregation check doesn't need to run most
-of the time, which saves a lot of time.
+### Cells
 
-### Terminate a path if finished areas are already wrong
+-Faces adjoined by Edges.
+-Can contain Squares, Suns, or Ticks.
+-Array of W*H size.
 
-If an area that cannot be revisited already fails the segregation or tetris
-checks then there is no point going on.
+## Search Problem
 
-# Rules
+The permutation found by the search problem is as follows.
+
+### States
+
+Consist of all permutations of the grid with the puzzle elements provided.
+
+### Actions
+
+The random placement of puzzle elements onto the grid in their respective array.
+
+### Inital State
+
+A W*H grid with pre-decided initial/goal vertices and a list of puzzle elements to be applied to the grid’s vertices/edges/faces.
+
+### Transition Models
+
+entering a new permutation from randomly placing the puzzle element onto the grid.
+
+### Goal Test
+
+Runs a brute force BFS to determine whether or not the permutation created from placing all puzzle elements onto the grid is solvable.
+
+_(there is no path cost / edge / step cost necessary for this algorithm)_
+
+## Puzzle Elements
 
 This is a list of the mechanics as implemented by this solver:
 
-##### Path
+### Path
 
-The path must be a self-avoiding walk starting at a start node and ending at an end node
+The path must be a self-avoiding walk starting at a start node and ending at an end node.
 
-##### Hexagons
+### Breaks
 
-Nodes or edges with a hexagon *must* be included in the path
+The solution path cannot include the edge the break is on.
 
-##### Squares
+### Hexes
 
-For every region R, all squares in R must share the same color.
+The solution path must include the node/edge the hex is on.
 
-##### Suns / Stars
+### Squares
 
-For every region R, **if** a sun of color X in in R, **then** there must be **exactly two** elements of color X in R.
+The solution path must separate all different color squares. That is to say, the path must separate the game environment into connected components in which all cells in said components are of the same color.
 
-##### Tetris Pieces
+### Color
 
-For every region R, R must exactly accommodate all the tetris pieces represented in R.
+Manages the amount of colors between squares.
 
-##### Hollow Squares
+### Suns
 
-For every region R, let H be the total number of hollow squares represented in the region (that is, groups just contribute their size, and the shape is ignored).
-**For some** choice of H individual tetris blocks, R must pass tetris validation (the step described above) when these pieces are removed, **but not if fewer** than H blocks are removed.
+The solution path must isolate connected components such that a sun is paired with another.
 
-##### Cancellation symbols
+### Cancellation symbols
 
-For every region R, let K denote the number of cancellation symbols in R.
-**For some** choice of K (non-cancellation) elements from the region, validation must pass (that is, all the rules described above must pass) when these elements are removed, **but not if fewer** than K elements are removed.
+When present, it must nullify one puzzle element contained within its connected component that would otherwise cause an error to the path's solution.
 
-# Notable implementation discrepancies
+## Restrictions
 
-Here are some things that are different from the game:
-
-* Perhaps most importantly, Cancellation symbols will not respect hexagons -- they only consider entities in the interiors of cells.
-* Hollow tetris cubes are implemented *only* depending on the total amount of hollow blocks in a region, disregarding shape.
-For the vast majority of puzzles in the game, this is acceptable.
-It's not completely clear *how* respecting the shape of hollow squares would work, as there were very few puzzles in the game using this mechanic.
+- Ticks do not cancel Hexes.
+- Ticks and Suns do not interact with the Color property (Suns are always Black, Ticks are always White)
+- Starting node is always situated in the bottom-left, and the end-node is always situated in the top right.

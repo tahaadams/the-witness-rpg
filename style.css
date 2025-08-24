@@ -18,67 +18,95 @@ body {
 }
 
 svg {
-    background: #00E94F;
+    background: #00a27d;
 
     box-shadow: 0 0 50px 0px rgba(0, 0, 0, 0.5) inset;
 }
 
 #solve-button {
-    width: 410px;
+    width: 263px;
     height: 50px;
 
-    background: #00E94F;
-    border: 1px solid #026223;
+    background: #00a27d;
+    border: 1px solid #1b3439;
 
     font-family: Roboto;
     font-weight: 500;
     font-size: 20px;
+    color: white;
 
     outline: none;
     cursor: pointer;
 }
 
 #solve-button:hover {
-    background: #00CE44;
+    background: #196e6b;
 }
 
 #solve-button:active {
-    background: #00A032;
+    background: #1b3439;
 }
 
 #clear-button {
-    width: 125px;
+    width: 129px;
     height: 50px;
 
-    background: #E80000;
-    border: 1px solid #630000;
+    background: #a3a49f;
+    border: 1px solid #51524f;
 
     font-family: Roboto;
     font-weight: 500;
     font-size: 20px;
+    color: black;
 
     outline: none;
     cursor: pointer;
 }
 
 #clear-button:hover {
-    background: #BC0000;
+    background: #b6b8b2;
 }
 
 #clear-button:active {
-    background: #960000;
+    background: #cbccc6;
 }
 
-select {
-    width: 100px;
+
+#gen-button {
+    width: 263px;
     height: 50px;
 
-    background: #00A4E5;
-    border: 1px solid #006B96;
+    background: #00a27d;
+    border: 1px solid #1b3439;
 
     font-family: Roboto;
     font-weight: 500;
     font-size: 20px;
+    color: white;
+
+    outline: none;
+    cursor: pointer;
+}
+
+#gen-button:hover {
+    background: #196e6b;
+}
+
+#gen-button:active {
+    background: #1b3439;
+}
+
+select {
+    width: 129px;
+    height: 50px;
+
+    background: #d5d5d3;
+    border: 1px solid #6b6b6a;
+
+    font-family: Roboto;
+    font-weight: 500;
+    font-size: 20px;
+    color: black;
 }
 
 #hint-size-selector {
