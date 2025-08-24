@@ -5,6 +5,10 @@ This is a tool for generating puzzles given a series of elements applied to the 
 interface for inputting puzzles similar to the panels in the game. It generates a random permutation
 provided the puzzle elements and finds the simplest solution to display on the grid.
 
+You can try out the solver here:
+
+https://tahaadams.github.io/the-witness-rpg/
+
 ## Algorithm
 
 Currently a very simple branch-and-bound algorithm is used that walks through
